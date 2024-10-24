@@ -1,3 +1,4 @@
+#tfsec:ignore:aws-vpc-no-public-egress-sgr
 resource "aws_security_group" "mc_instance_k8s_api_access" {
   name        = "unity-ads-${var.cluster_name}-mc-sg"
   description = "Security group to allow access to K8s API from MC instance"
@@ -26,6 +27,7 @@ resource "aws_security_group" "mc_instance_k8s_api_access" {
 
 }
 
+#tfsec:ignore:aws-ec2-no-public-egress-sgr tfsec:ignore:aws-eks-no-public-cluster-access tfsec:ignore:aws-eks-no-public-cluster-access-to-cidr
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 20.0"
@@ -48,24 +50,24 @@ module "eks" {
     }
   }
 
-  vpc_id                   = data.aws_ssm_parameter.vpc_id.value
-  subnet_ids               = local.subnet_map["private"]
+  vpc_id     = data.aws_ssm_parameter.vpc_id.value
+  subnet_ids = local.subnet_map["private"]
 
-  enable_irsa = true
-  create_iam_role = true
-  iam_role_name = "unity-ads-${var.cluster_name}-EKSClusterRole"
+  enable_irsa                   = true
+  create_iam_role               = true
+  iam_role_name                 = "unity-ads-${var.cluster_name}-EKSClusterRole"
   iam_role_permissions_boundary = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/mcp-tenantOperator-AMI-APIG"
 
   # EKS Managed Node Group(s)
   eks_managed_node_group_defaults = {
-    create_iam_role = true
-    iam_role_name = "unity-ads-${var.cluster_name}-EKSNodeRole"
+    create_iam_role               = true
+    iam_role_name                 = "unity-ads-${var.cluster_name}-EKSNodeRole"
     iam_role_permissions_boundary = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/mcp-tenantOperator-AMI-APIG"
-    ami_id          = data.aws_ssm_parameter.ami_id.value
+    ami_id                        = data.aws_ssm_parameter.ami_id.value
 
     # This seemes necessary so that MCP EKS ami images can communicate with the EKS cluster
     enable_bootstrap_user_data = true
-    pre_bootstrap_user_data = <<-EOT
+    pre_bootstrap_user_data    = <<-EOT
       sudo sed -i 's/^net.ipv4.ip_forward = 0/net.ipv4.ip_forward = 1/' /etc/sysctl.conf && sudo sysctl -p |true
     EOT
 

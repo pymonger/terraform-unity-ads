@@ -3,11 +3,11 @@ locals {
 
   cost_tags = {
     ServiceArea = "аds"
-    Proj = "unity"
-    Venue = "venue-dev"
-    Component = "jupyterhub"
-    CreatedBy = "ads"
-    Env = "uads"
-    Stack = "jupyterhub"
+    Proj        = "unity"
+    Venue       = "venue-dev"
+    Component   = "jupyterhub"
+    CreatedBy   = "ads"
+    Env         = "uads"
+    Stack       = "jupyterhub"
   }
 }
